@@ -107,15 +107,7 @@ const Dashboard = () => {
     ? [...usage].sort((a, b) => b.minutes_spent - a.minutes_spent)[0]?.app_name
     : '—';
 
-  const goalsMetToday = goals.length > 0 && goals.every(goal => {
-    const total = usage
-      .filter(s =>
-        s.app_name === goal.app_name &&
-        new Date(s.date).toDateString() === new Date().toDateString()
-      )
-      .reduce((sum, s) => sum + s.minutes_spent, 0);
-    return total <= goal.daily_limit_minutes;
-  });
+  
 
   if (loading) return (
     <div style={{

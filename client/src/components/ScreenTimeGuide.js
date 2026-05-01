@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { RiSmartphoneLine, RiAppleLine, RiArrowDownSLine, RiArrowUpSLine } from 'react-icons/ri';
+import { RiSmartphoneLine, RiArrowDownSLine, RiArrowUpSLine } from 'react-icons/ri';
 
 const steps = {
   android: [
