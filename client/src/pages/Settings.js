@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar';
 import ScreenTimeGuide from '../components/ScreenTimeGuide';
 import {
   RiAddLine, RiCheckLine, RiTimeLine,
-  RiNotificationLine, RiLeafLine, RiDeleteBinLine
+  RiNotificationLine, RiLeafLine,
 } from 'react-icons/ri';
 
 const APPS = ['Instagram','YouTube','X','Netflix','WhatsApp','LinkedIn','Snapchat','Other'];
