@@ -6,7 +6,6 @@ import StreakPanel from '../components/StreakPanel';
 import RedPanda from '../components/RedPanda';
 import NightBackground from '../components/NightBackground';
 
-import ScreenTimeGuide from '../components/ScreenTimeGuide';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer, Cell
@@ -16,7 +15,7 @@ import {
   RiLeafLine, RiSmartphoneLine
 } from 'react-icons/ri';
 
-const APPS = ['Instagram','YouTube','Twitter','TikTok','Netflix','Reddit','WhatsApp','Other'];
+const APPS = ['Instagram','YouTube','X','Netflix','WhatsApp','LinkedIn','Snapchat','Other'];
 
 const StatCard = ({ icon, label, value, color = 'var(--accent)' }) => (
   <div style={{
@@ -330,8 +329,8 @@ const Dashboard = () => {
                         <td style={{ padding: '12px 0', fontWeight: 600 }}>{s.app_name}</td>
                         <td style={{ padding: '12px 0', color: 'var(--accent)' }}>{s.minutes_spent} mins</td>
                         <td style={{ padding: '12px 0', color: 'var(--muted)', fontSize: '13px' }}>
-                          {d.toLocaleDateString('en', { month: 'short', day: 'numeric' })}{' '}
-                          {d.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' })}
+                          {d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', timeZone: 'Asia/Kolkata' })}{' '}
+                          {d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })}
                         </td>
                       </tr>
                     );
