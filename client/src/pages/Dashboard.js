@@ -166,8 +166,6 @@ const Dashboard = () => {
             </button>
           </div>
 
-          {/* Screen Time Guide */}
-          <ScreenTimeGuide />
 
           {/* Log Form */}
           {showForm && (
