@@ -49,8 +49,8 @@ const Register = () => {
   };
 
   const fields = [
-    { label:'Full Name',        name:'name',     type:'text',     placeholder:'Shiva' },
-    { label:'Email',            name:'email',    type:'email',    placeholder:'shiva@email.com' },
+    { label:'Full Name',        name:'name',     type:'text',     placeholder:'Your Name' },
+    { label:'Email',            name:'email',    type:'email',    placeholder:'Email' },
     { label:'Password',         name:'password', type:'password', placeholder:'Min. 6 characters' },
     { label:'Confirm Password', name:'confirm',  type:'password', placeholder:'Re-enter password' },
   ];
