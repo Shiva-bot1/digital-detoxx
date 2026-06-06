@@ -445,9 +445,15 @@ const Dashboard = () => {
                       <tr key={s.id} style={{ borderBottom: '1px solid var(--border)' }}>
                         <td style={{ padding: '12px 0', fontWeight: 600 }}>{s.app_name}</td>
                         <td style={{ padding: '12px 0', color: 'var(--accent)' }}>{s.minutes_spent} mins</td>
-                        <td style={{ padding: '12px 0', color: 'var(--muted)', fontSize: '13px' }}>
-                          {d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', timeZone: 'Asia/Kolkata' })}{' '}
-                          {d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })}
+                        <td style={{ padding:'12px 0', color:'var(--muted)', fontSize:'13px' }}>
+                          {new Date(s.date).toLocaleString('en-IN', {
+                            timeZone: 'Asia/Kolkata',
+                            month:    'short',
+                            day:      'numeric',
+                            hour:     '2-digit',
+                            minute:   '2-digit',
+                            hour12:   true,
+                          })}
                         </td>
                       </tr>
                     );
