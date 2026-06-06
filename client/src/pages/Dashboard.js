@@ -439,25 +439,22 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {usage.slice(0, 8).map(s => {
-                    const d = new Date(s.date);
-                    return (
-                      <tr key={s.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                        <td style={{ padding: '12px 0', fontWeight: 600 }}>{s.app_name}</td>
-                        <td style={{ padding: '12px 0', color: 'var(--accent)' }}>{s.minutes_spent} mins</td>
-                        <td style={{ padding:'12px 0', color:'var(--muted)', fontSize:'13px' }}>
-                          {new Date(s.date).toLocaleString('en-IN', {
-                            timeZone: 'Asia/Kolkata',
-                            month:    'short',
-                            day:      'numeric',
-                            hour:     '2-digit',
-                            minute:   '2-digit',
-                            hour12:   true,
-                          })}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {usage.slice(0, 8).map(s => (
+                    <tr key={s.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                      <td style={{ padding: '12px 0', fontWeight: 600 }}>{s.app_name}</td>
+                      <td style={{ padding: '12px 0', color: 'var(--accent)' }}>{s.minutes_spent} mins</td>
+                      <td style={{ padding:'12px 0', color:'var(--muted)', fontSize:'13px' }}>
+                        {new Date(s.date).toLocaleString('en-IN', {
+                          timeZone: 'Asia/Kolkata',
+                          month:    'short',
+                          day:      'numeric',
+                          hour:     '2-digit',
+                          minute:   '2-digit',
+                          hour12:   true,
+                        })}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             )}
