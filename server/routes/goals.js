@@ -9,14 +9,21 @@ router.post('/', auth, async (req, res) => {
 
     const { data, error } = await supabase
       .from('goals')
-      .insert([{ user_id: req.user.id, app_name: appName, daily_limit_minutes: dailyLimitMinutes }])
+      .insert([{
+        user_id:             req.user.id,
+        app_name:            appName,
+        daily_limit_minutes: dailyLimitMinutes,
+      }])
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Goal insert error:', error);
+      return res.status(500).json({ message: error.message });
+    }
     res.status(201).json(data);
-
   } catch (err) {
+    console.error('Goal route error:', err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -30,10 +37,13 @@ router.get('/', auth, async (req, res) => {
       .eq('user_id', req.user.id)
       .eq('active', true);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Goal fetch error:', error);
+      return res.status(500).json({ message: error.message });
+    }
     res.json(data);
-
   } catch (err) {
+    console.error('Goal fetch route error:', err);
     res.status(500).json({ message: err.message });
   }
 });

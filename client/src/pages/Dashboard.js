@@ -58,7 +58,8 @@ const Dashboard = () => {
   const [showForm, setShowForm] = useState(false);
   const [form,     setForm]     = useState({ appName: 'Instagram', minutesSpent: '' });
   const [loading,  setLoading]  = useState(true);
-
+  const [focusBlocked,  setFocusBlocked]  = useState(false);
+  const [goalExceeded,  setGoalExceeded]  = useState(null);
   
   const fetchData = async () => {
     try {
@@ -76,8 +77,55 @@ const Dashboard = () => {
 
   const handleLog = async e => {
     e.preventDefault();
+
+    // ── Focus Schedule enforcement ──────────────────────────
+    const schedule = JSON.parse(localStorage.getItem('focusSchedule') || '{}');
+    if (schedule.enabled) {
+      const now     = new Date();
+      const dayMap  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      const today   = dayMap[now.getDay()];
+      const current = now.getHours() * 60 + now.getMinutes();
+
+      const [sh, sm] = schedule.startTime.split(':').map(Number);
+      const [eh, em] = schedule.endTime.split(':').map(Number);
+      const start = sh * 60 + sm;
+      const end   = eh * 60 + em;
+
+      const inFocus = start <= end
+        ? current >= start && current <= end
+        : current >= start || current <= end;
+
+      if (inFocus && schedule.days.includes(today)) {
+        setFocusBlocked(true);
+        return;
+      }
+    }
+
+    // ── Save log ─────────────────────────────────────────────
     try {
       await logUsage({ appName: form.appName, minutesSpent: Number(form.minutesSpent) });
+
+      // ── Goal exceeded alert ───────────────────────────────
+      const updatedUsage = await getUsage();
+      const todayLogs    = updatedUsage.data.filter(s =>
+        new Date(s.date).toDateString() === new Date().toDateString()
+      );
+
+      const matchingGoal = goals.find(g => g.app_name === form.appName);
+      if (matchingGoal) {
+        const total = todayLogs
+          .filter(s => s.app_name === form.appName)
+          .reduce((sum, s) => sum + s.minutes_spent, 0);
+
+        if (total > matchingGoal.daily_limit_minutes) {
+          setGoalExceeded({
+            app:   form.appName,
+            total,
+            limit: matchingGoal.daily_limit_minutes,
+          });
+        }
+      }
+
       setForm({ appName: 'Instagram', minutesSpent: '' });
       setShowForm(false);
       fetchData();
@@ -125,6 +173,77 @@ const Dashboard = () => {
     <div style={{ minHeight: '100vh', background: '#020a08', position: 'relative' }}>
 
       <NightBackground />
+
+      {/* ── Focus Block Overlay ───────────────────────────── */}
+      {focusBlocked && (
+        <div style={{
+          position:'fixed', inset:0, zIndex:999,
+          background:'rgba(2,10,8,0.92)',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          backdropFilter:'blur(8px)',
+        }}>
+          <div style={{
+            background:'var(--card)', border:'1px solid rgba(255,179,71,0.4)',
+            borderRadius:'20px', padding:'40px', maxWidth:'400px',
+            textAlign:'center',
+          }}>
+            <div style={{ fontSize:'48px', marginBottom:'16px' }}>🌙</div>
+            <h2 style={{
+              fontFamily:"'Syne',sans-serif", fontSize:'22px',
+              fontWeight:800, marginBottom:'12px', color:'#ffb347',
+            }}>Focus Mode Active</h2>
+            <p style={{ color:'var(--muted)', fontSize:'14px', lineHeight:1.7, marginBottom:'24px' }}>
+              You've set a focus schedule for this time. Step away from the screen — you've got this.
+            </p>
+            <button onClick={() => setFocusBlocked(false)} style={{
+              padding:'11px 28px', background:'#ffb347',
+              border:'none', borderRadius:'10px',
+              color:'#0a0f0d', fontWeight:700, fontSize:'14px',
+              cursor:'pointer', fontFamily:"'Space Grotesk',sans-serif",
+            }}>
+              Override Focus Mode
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Goal Exceeded Overlay ─────────────────────────── */}
+      {goalExceeded && (
+        <div style={{
+          position:'fixed', inset:0, zIndex:999,
+          background:'rgba(2,10,8,0.92)',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          backdropFilter:'blur(8px)',
+        }}>
+          <div style={{
+            background:'var(--card)', border:'1px solid rgba(255,77,109,0.4)',
+            borderRadius:'20px', padding:'40px', maxWidth:'400px',
+            textAlign:'center',
+          }}>
+            <div style={{ fontSize:'48px', marginBottom:'16px' }}>⚠️</div>
+            <h2 style={{
+              fontFamily:"'Syne',sans-serif", fontSize:'22px',
+              fontWeight:800, marginBottom:'12px', color:'var(--danger)',
+            }}>Goal Exceeded!</h2>
+            <p style={{ color:'var(--muted)', fontSize:'14px', lineHeight:1.7, marginBottom:'8px' }}>
+              You've spent <strong style={{ color:'var(--danger)' }}>{goalExceeded.total} minutes</strong> on{' '}
+              <strong style={{ color:'var(--text)' }}>{goalExceeded.app}</strong> today.
+            </p>
+            <p style={{ color:'var(--muted)', fontSize:'13px', marginBottom:'24px' }}>
+              Your daily limit is <strong style={{ color:'var(--accent)' }}>{goalExceeded.limit} minutes</strong>.
+              Time to put the phone down. 🐾
+            </p>
+            <button onClick={() => setGoalExceeded(null)} style={{
+              padding:'11px 28px', background:'var(--danger)',
+              border:'none', borderRadius:'10px',
+              color:'white', fontWeight:700, fontSize:'14px',
+              cursor:'pointer', fontFamily:"'Space Grotesk',sans-serif",
+            }}>
+              I'll do better tomorrow
+            </button>
+          </div>
+        </div>
+      )}
 
       <div style={{ position: 'relative', zIndex: 1 }}>
         <Navbar />
