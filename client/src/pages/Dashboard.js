@@ -7,8 +7,7 @@ import RedPanda from '../components/RedPanda';
 import NightBackground from '../components/NightBackground';
 
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip,
-  ResponsiveContainer, Cell
+  PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 import {
   RiAddLine, RiTimeLine, RiFireLine,
@@ -33,16 +32,16 @@ const StatCard = ({ icon, label, value, color = 'var(--accent)' }) => (
   </div>
 );
 
-const CustomTooltip = ({ active, payload, label }) => {
+const CustomTooltip = ({ active, payload }) => {
   if (active && payload?.length) {
     return (
       <div style={{
-        background: 'var(--bg2)', border: '1px solid var(--border)',
-        borderRadius: '10px', padding: '10px 14px', fontSize: '13px',
+        background:'var(--bg2)', border:'1px solid var(--border)',
+        borderRadius:'10px', padding:'10px 14px', fontSize:'13px',
       }}>
-        <p style={{ color: 'var(--muted)', marginBottom: '4px' }}>{label}</p>
-        <p style={{ color: 'var(--accent)', fontWeight: 600 }}>
-          {payload[0].value} mins
+        <p style={{ color:'var(--muted)', marginBottom:'4px' }}>{payload[0].name}</p>
+        <p style={{ color:'var(--accent)', fontWeight:600 }}>
+          {payload[0].value} mins ({payload[0].payload.percent}%)
         </p>
       </div>
     );
@@ -134,15 +133,32 @@ const Dashboard = () => {
     }
   };
 
-  const chartData = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (6 - i));
-    const label = d.toLocaleDateString('en', { weekday: 'short' });
-    const total = usage
-      .filter(s => new Date(s.date).toDateString() === d.toDateString())
-      .reduce((sum, s) => sum + s.minutes_spent, 0);
-    return { day: label, mins: total };
-  });
+  // Pie chart — per app usage totals (all time or this week)
+const appTotals = {};
+usage.forEach(s => {
+  const d = new Date(s.date);
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  if (d >= weekAgo) {
+    appTotals[s.app_name] = (appTotals[s.app_name] || 0) + s.minutes_spent;
+  }
+});
+
+const totalMins = Object.values(appTotals).reduce((a, b) => a + b, 0);
+
+const PIE_COLORS = [
+  '#00e87a','#00b8d9','#ffb347','#ff4d6d',
+  '#8c50dc','#00c96a','#f5a623','#4ecdc4',
+];
+
+const chartData = Object.entries(appTotals)
+  .map(([name, value], i) => ({
+    name,
+    value,
+    percent: totalMins > 0 ? Math.round((value / totalMins) * 100) : 0,
+    color: PIE_COLORS[i % PIE_COLORS.length],
+  }))
+  .sort((a, b) => b.value - a.value);
 
   const todayTotal = usage
     .filter(s => new Date(s.date).toDateString() === new Date().toDateString())
@@ -340,28 +356,68 @@ const Dashboard = () => {
           {/* Chart + Goals */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '16px', marginBottom: '24px' }}>
             <div style={{
-              background: 'var(--card)', border: '1px solid var(--border)',
-              borderRadius: '16px', padding: '24px',
+              background:'var(--card)', border:'1px solid var(--border)',
+              borderRadius:'16px', padding:'24px',
             }}>
-              <h3 style={{ marginBottom: '20px', fontWeight: 600, fontSize: '15px' }}>
+              <h3 style={{ marginBottom:'8px', fontWeight:600, fontSize:'15px' }}>
                 Weekly Screen Time
               </h3>
-              <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={chartData} barSize={26}>
-                  <XAxis dataKey="day" axisLine={false} tickLine={false}
-                    tick={{ fill: '#6b8f78', fontSize: 12 }}/>
-                  <YAxis axisLine={false} tickLine={false}
-                    tick={{ fill: '#6b8f78', fontSize: 12 }}/>
-                  <Tooltip content={<CustomTooltip/>} cursor={{ fill: 'rgba(0,232,122,0.04)' }}/>
-                  <Bar dataKey="mins" radius={[6,6,0,0]}>
+              <p style={{ fontSize:'12px', color:'var(--muted)', marginBottom:'20px' }}>
+                Last 7 days — by app
+              </p>
+
+              {chartData.length === 0 ? (
+                <div style={{
+                  height:'220px', display:'flex',
+                  alignItems:'center', justifyContent:'center',
+                  color:'var(--muted)', fontSize:'14px',
+                }}>
+                  No usage logged this week yet.
+                </div>
+              ) : (
+                <>
+                  <ResponsiveContainer width="100%" height={220}>
+                    <PieChart>
+                      <Pie
+                        data={chartData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={55}
+                        outerRadius={90}
+                        paddingAngle={3}
+                        dataKey="value"
+                      >
+                        {chartData.map((entry, i) => (
+                          <Cell key={i} fill={entry.color} stroke="none"/>
+                        ))}
+                      </Pie>
+                      <Tooltip content={<CustomTooltip/>}/>
+                    </PieChart>
+                  </ResponsiveContainer>
+
+                  {/* Legend */}
+                  <div style={{
+                    display:'flex', flexWrap:'wrap', gap:'8px',
+                    marginTop:'12px', justifyContent:'center',
+                  }}>
                     {chartData.map((entry, i) => (
-                      <Cell key={i}
-                        fill={entry.mins > 120 ? '#ff4d6d' : entry.mins > 60 ? '#ffb347' : '#00e87a'}
-                      />
+                      <div key={i} style={{
+                        display:'flex', alignItems:'center', gap:'6px',
+                        fontSize:'12px', color:'var(--muted)',
+                      }}>
+                        <div style={{
+                          width:'10px', height:'10px', borderRadius:'50%',
+                          background: entry.color, flexShrink:0,
+                        }}/>
+                        <span>{entry.name}</span>
+                        <span style={{ color:'var(--text)', fontWeight:600 }}>
+                          {entry.percent}%
+                        </span>
+                      </div>
                     ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Goals */}
