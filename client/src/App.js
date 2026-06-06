@@ -5,6 +5,7 @@ import Login     from './pages/Login';
 import Register  from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Settings  from './pages/Settings';
+import NotificationManager from './components/NotificationManager';
 
 const PrivateRoute = ({ children }) => {
   const { token } = useAuth();
@@ -13,6 +14,7 @@ const PrivateRoute = ({ children }) => {
 
 const App = () => (
   <AuthProvider>
+    <NotificationManager />
     <BrowserRouter>
       <Routes>
         <Route path="/login"    element={<Login />} />

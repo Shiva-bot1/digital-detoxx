@@ -334,9 +334,54 @@ const Settings = () => {
             background:'var(--card)', border:'1px solid var(--border)',
             borderRadius:'16px', padding:'28px',
           }}>
-            <h3 style={{ fontWeight:700, fontSize:'16px', marginBottom:'24px' }}>
+            <h3 style={{ fontWeight:700, fontSize:'16px', marginBottom:'8px' }}>
               Notification Preferences
             </h3>
+            <p style={{ color:'var(--muted)', fontSize:'13px', marginBottom:'24px' }}>
+              SvaZen sends browser notifications — make sure to allow them when prompted.
+            </p>
+
+            {/* Permission request */}
+            {'Notification' in window && Notification.permission !== 'granted' && (
+              <div style={{
+                padding:'16px', borderRadius:'12px', marginBottom:'24px',
+                background:'rgba(255,179,71,0.08)',
+                border:'1px solid rgba(255,179,71,0.3)',
+                display:'flex', alignItems:'center', justifyContent:'space-between',
+                gap:'12px',
+              }}>
+                <div>
+                  <p style={{ fontWeight:600, fontSize:'14px', color:'#ffb347', marginBottom:'4px' }}>
+                    Notifications not enabled
+                  </p>
+                  <p style={{ fontSize:'12px', color:'var(--muted)' }}>
+                    Click to allow browser notifications from SvaZen
+                  </p>
+                </div>
+                <button
+                  onClick={() => Notification.requestPermission().then(() => window.location.reload())}
+                  style={{
+                    padding:'9px 18px', background:'#ffb347',
+                    border:'none', borderRadius:'9px',
+                    color:'#0a0f0d', fontWeight:700, fontSize:'13px',
+                    cursor:'pointer', whiteSpace:'nowrap',
+                    fontFamily:"'Space Grotesk',sans-serif",
+                  }}>
+                  Enable Now
+                </button>
+              </div>
+            )}
+
+            {'Notification' in window && Notification.permission === 'granted' && (
+              <div style={{
+                padding:'12px 16px', borderRadius:'10px', marginBottom:'20px',
+                background:'rgba(0,232,122,0.08)', border:'1px solid rgba(0,232,122,0.2)',
+                display:'flex', alignItems:'center', gap:'10px',
+                fontSize:'13px', color:'var(--accent)',
+              }}>
+                ✓ Browser notifications are enabled
+              </div>
+            )}
 
             {[
               { key:'dailyReminder', label:'Daily Logging Reminder',
