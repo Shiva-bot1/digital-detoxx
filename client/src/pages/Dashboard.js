@@ -7,7 +7,7 @@ import RedPanda from '../components/RedPanda';
 import NightBackground from '../components/NightBackground';
 
 import {
-  PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend
+  PieChart, Pie, Cell, Tooltip, ResponsiveContainer
 } from 'recharts';
 import {
   RiAddLine, RiTimeLine, RiFireLine,
