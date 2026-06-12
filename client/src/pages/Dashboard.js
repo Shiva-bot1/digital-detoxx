@@ -55,7 +55,7 @@ const Dashboard = () => {
   const [usage,    setUsage]    = useState([]);
   const [goals,    setGoals]    = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [form,     setForm]     = useState({ appName: 'Instagram', minutesSpent: '' });
+  const [form, setForm] = useState({ appName: 'Instagram', hours: '0', minutes: '0' });
   const [loading,  setLoading]  = useState(true);
   const [focusBlocked,  setFocusBlocked]  = useState(false);
   const [goalExceeded,  setGoalExceeded]  = useState(null);
@@ -102,7 +102,9 @@ const Dashboard = () => {
 
     // ── Save log ─────────────────────────────────────────────
     try {
-      await logUsage({ appName: form.appName, minutesSpent: Number(form.minutesSpent) });
+      const totalMins = parseInt(form.hours || 0) * 60 + parseInt(form.minutes || 0);
+      if (totalMins < 1) return;
+      await logUsage({ appName: form.appName, minutesSpent: totalMins });
 
       // ── Goal exceeded alert ───────────────────────────────
       const updatedUsage = await getUsage();
@@ -125,7 +127,7 @@ const Dashboard = () => {
         }
       }
 
-      setForm({ appName: 'Instagram', minutesSpent: '' });
+      setForm({ appName: 'Instagram', hours: '0', minutes: '0' });
       setShowForm(false);
       fetchData();
     } catch (err) {
@@ -321,17 +323,39 @@ const chartData = Object.entries(appTotals)
                 >
                   {APPS.map(a => <option key={a} value={a}>{a}</option>)}
                 </select>
-                <input
-                  type="number" placeholder="Minutes spent" min="1"
-                  value={form.minutesSpent}
-                  onChange={e => setForm({ ...form, minutesSpent: e.target.value })}
-                  required
-                  style={{
-                    flex: 1, minWidth: '150px', padding: '11px 14px',
-                    background: 'var(--bg3)', border: '1px solid var(--border)',
-                    borderRadius: '10px', color: 'var(--text)', fontSize: '14px',
-                  }}
-                />
+                <div style={{ display:'flex', gap:'8px', alignItems:'center', flex:1, minWidth:'200px' }}>
+                  <div style={{ flex:1 }}>
+                    <input
+                      type="number" min="0" max="23" placeholder="0"
+                      value={form.hours}
+                      onChange={e => setForm({ ...form, hours: e.target.value })}
+                      style={{
+                        width:'100%', padding:'11px 14px',
+                        background:'var(--bg3)', border:'1px solid var(--border)',
+                        borderRadius:'10px', color:'var(--text)', fontSize:'14px',
+                      }}
+                    />
+                    <p style={{ fontSize:'11px', color:'var(--muted)', textAlign:'center', marginTop:'4px' }}>
+                      Hours
+                    </p>
+                  </div>
+                  <span style={{ color:'var(--muted)', fontSize:'18px', fontWeight:700, paddingBottom:'18px' }}>:</span>
+                  <div style={{ flex:1 }}>
+                    <input
+                      type="number" min="0" max="59" placeholder="0"
+                      value={form.minutes}
+                      onChange={e => setForm({ ...form, minutes: e.target.value })}
+                      style={{
+                        width:'100%', padding:'11px 14px',
+                        background:'var(--bg3)', border:'1px solid var(--border)',
+                        borderRadius:'10px', color:'var(--text)', fontSize:'14px',
+                      }}
+                    />
+                    <p style={{ fontSize:'11px', color:'var(--muted)', textAlign:'center', marginTop:'4px' }}>
+                      Minutes
+                    </p>
+                  </div>
+                </div>
                 <button type="submit" style={{
                   padding: '11px 22px', background: 'var(--accent)',
                   border: 'none', borderRadius: '10px',
