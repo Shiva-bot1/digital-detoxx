@@ -3,7 +3,6 @@ import { getGoals, setGoal } from '../services/api';
 import { supabase } from '../services/api';
 import Navbar from '../components/Navbar';
 import ScreenTimeGuide from '../components/ScreenTimeGuide';
-import { useTheme } from '../context/ThemeContext';
 import {
   RiAddLine, RiCheckLine, RiTimeLine,
   RiNotificationLine, RiLeafLine, RiEditLine,
@@ -22,7 +21,6 @@ const CHALLENGES = [
 ];
 
 const Settings = () => {
-  const { theme } = useTheme();
   const [goals,         setGoals]         = useState([]);
   const [form,          setForm]          = useState({ appName:'Instagram', hours:'0', minutes:'30' });
   const [saved,         setSaved]         = useState(false);
